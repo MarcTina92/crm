@@ -602,6 +602,9 @@ function transformIn(f) {
 }
 
 function placeholder(f) {
+  if (f.fieldname === '_assign' && ['like', 'not like'].includes(f.operator)) {
+    return __('Select a person')
+  }
   if (f.operator === 'between') {
     return __('01/01/2022 to 01/31/2022')
   } else if (f.operator === 'in' || f.operator === 'not in') {
