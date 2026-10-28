@@ -514,10 +514,14 @@ function getParams() {
 // Zanaverse: frappe-ui's resource keeps `params` null after its first automatic fetch
 // (it fetches with options.params but stores null), so quick filters, sort, load more
 // etc. threw "Cannot read properties of null (reading 'filters')" until Refresh.
+// makeParams runs inside every fetch, so the resource itself always keeps real params
+// (setting list.value.params afterwards does not work: `list` is a defineModel, and
+// right after assignment list.value is still the parent's previous object).
 const initialListParams = getParams()
 list.value = createResource({
   url: 'crm.api.doc.get_data',
   params: initialListParams,
+  makeParams: (params) => params || initialListParams,
   cache: [props.doctype, route.query.view, route.params.viewType],
   auto: true,
   onSuccess(data) {
@@ -544,7 +548,6 @@ list.value = createResource({
     }
   },
 })
-if (!list.value.params) list.value.params = initialListParams
 
 const isLoading = computed(() => list.value?.loading)
 
