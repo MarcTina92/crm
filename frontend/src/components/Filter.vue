@@ -400,6 +400,17 @@ function getValueControl(f) {
       modelValue: f.value,
       'onUpdate:modelValue': (v) => updateValue(v, f),
     })
+  } else if (
+    f.fieldname === '_assign' &&
+    ['like', 'not like'].includes(operator)
+  ) {
+    // Zanaverse: pick the person by name instead of typing %email%
+    return h(Link, {
+      class: 'form-control',
+      doctype: 'User',
+      value: assignedUser(f.value),
+      hideMe: true,
+    })
   } else if (['like', 'not like', 'in', 'not in'].includes(operator)) {
     return h(FormControl, { type: 'text' })
   } else if (typeSelect.includes(fieldtype) || typeCheck.includes(fieldtype)) {
@@ -566,7 +577,21 @@ function parseFilters(filters) {
   return merged
 }
 
+function assignedUser(value) {
+  return (value || '').replace(/^%"?|"?%$/g, '')
+}
+
 function transformIn(f) {
+  if (
+    f.fieldname === '_assign' &&
+    f.operator.includes('like') &&
+    f.value &&
+    !f.value.includes('%') &&
+    f.value.includes('@')
+  ) {
+    // _assign holds a JSON list of emails: match the exact "email" entry
+    f.value = `%"${f.value}"%`
+  }
   if (f.operator.includes('like') && !f.value.includes('%')) {
     f.value = `%${f.value}%`
   }
