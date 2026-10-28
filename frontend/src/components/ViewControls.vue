@@ -790,7 +790,7 @@ const quickFilterList = computed(() => {
 
   filters.forEach((filter) => {
     filter['value'] = filter.fieldtype == 'Check' ? false : ''
-    if (list.value.params?.filters[filter.fieldname]) {
+    if (list.value.params?.filters?.[filter.fieldname]) {
       let value = list.value.params.filters[filter.fieldname]
       if (Array.isArray(value)) {
         if (
