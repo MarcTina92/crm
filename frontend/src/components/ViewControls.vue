@@ -688,6 +688,27 @@ onBeforeUnmount(() => {
 
 const isLoading = computed(() => list.value?.loading)
 
+// Zanaverse (TASK-2026-00861): on a direct link or a page refresh the list is first built before the
+// saved views have loaded, so a saved view (e.g. ?view=3) showed the default list - every record, no
+// filters, default columns - under the view's title. Once the view named in the URL is known and the
+// first load has finished, rebuild the list from it. Only when that first build didn't know the view,
+// so an unsaved change the user has made is never thrown away. Reported upstream.
+let savedViewChecked = false
+watch(
+  [
+    () => getView(route.query.view, route.params.viewType, props.doctype),
+    isLoading,
+  ],
+  ([view, loading]) => {
+    if (savedViewChecked || loading || !route.query.view || !view) return
+    savedViewChecked = true
+    if (listResource.params?.view?.custom_view_name) return
+    viewUpdated.value = false
+    reload()
+  },
+  { immediate: true },
+)
+
 function getListParams() {
   if (!listResource.params) listResource.params = getParams()
   return listResource.params
