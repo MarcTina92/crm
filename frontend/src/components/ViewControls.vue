@@ -695,7 +695,10 @@ const isLoading = computed(() => list.value?.loading)
 // so an unsaved change the user has made is never thrown away. Reported upstream.
 let savedViewChecked = false
 watch(
-  [() => getView(route.query.view, route.params.viewType, props.doctype), isLoading],
+  [
+    () => getView(route.query.view, route.params.viewType, props.doctype),
+    isLoading,
+  ],
   ([view, loading]) => {
     if (savedViewChecked || loading || !route.query.view || !view) return
     savedViewChecked = true
